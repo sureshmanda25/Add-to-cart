@@ -16,9 +16,18 @@ const shoppingListEl = document.getElementById("shopping-list")
 addButtonEl.addEventListener("click", function() {
     let inputValue = inputFieldEl.value
     
-    push(shoppingListInDB, inputValue)
-    
-    clearInputFieldEl()
+    if (inputValue.trim() !== "") {
+        push(shoppingListInDB, inputValue)
+            .then(() => {
+                console.log('Item added successfully');
+                clearInputFieldEl();
+            })
+            .catch((error) => {
+                console.error('Error adding item:', error);
+            });
+    } else {
+        console.error('Input field is empty');
+    }
 })
 
 onValue(shoppingListInDB, function(snapshot) {
@@ -32,7 +41,7 @@ onValue(shoppingListInDB, function(snapshot) {
             let currentItemID = currentItem[0]
             let currentItemValue = currentItem[1]
             
-            appendItemToShoppingListEl(currentItem)
+            appendItemToShoppingListEl(currentItemValue)
         }    
     } else {
         shoppingListEl.innerHTML = "No items here... yet"
@@ -48,18 +57,7 @@ function clearInputFieldEl() {
 }
 
 function appendItemToShoppingListEl(item) {
-    let itemID = item[0]
-    let itemValue = item[1]
-    
-    let newEl = document.createElement("li")
-    
-    newEl.textContent = itemValue
-    
-    newEl.addEventListener("click", function() {
-        let exactLocationOfItemInDB = ref(database, `shoppingList/${itemID}`)
-        
-        remove(exactLocationOfItemInDB)
-    })
-    
-    shoppingListEl.append(newEl)
+    let li = document.createElement("li")
+    li.textContent = item
+    shoppingListEl.appendChild(li)
 }
